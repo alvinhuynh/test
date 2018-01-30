@@ -23,7 +23,6 @@ const getOptions = (coin) => {
 const MIN_VOLUME_THRESHOLD = 100000;
 const MIN_ARBITRAGE_THRESHOLD = 0.05;
 
-let opportunities = [];
 
 let removeLeadingDollarSign = (string) => {
   return string.substr(1, string.length - 1);
@@ -34,6 +33,8 @@ let removeComma = (string) => {
 };
 
 let findArtbirtageOpportunity = (coin) => {
+  let opportunities = [];
+
   rp(getOptions(coin)).then(($) => {
     $('#markets-table tbody tr').each(function(i, elem) {
       let $this = $(this);
@@ -60,7 +61,7 @@ let findArtbirtageOpportunity = (coin) => {
     let lowestPrice = opportunities[opportunities.length - 1];
 
     if (((parseFloat(highestPrice.price) / parseFloat(lowestPrice.price)) - 1) >= MIN_ARBITRAGE_THRESHOLD) {
-      console.log('arbitrage opportunity exists for', coin );
+      console.log('arbitrage opportunity exists for: ', coin );
       console.log(`buy from source: ${lowestPrice.source}, pair: ${lowestPrice.pair}, volume: ${lowestPrice.volume}, price: ${lowestPrice.price}`);
       console.log(`sell from source: ${highestPrice.source}, pair: ${highestPrice.pair}, volume: ${highestPrice.volume}, price: ${highestPrice.price}`)
       console.log('\n');

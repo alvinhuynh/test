@@ -24,6 +24,10 @@ const MIN_VOLUME_THRESHOLD = 100000;
 const MIN_ARBITRAGE_THRESHOLD = 0.05;
 const EXCHANGES = [ 'Liqui', 'Huobi', 'Cryptopia', 'HitBTC', 'Poloniex', 'Binance', 'KuCoin'];
 const SWAP_CURRENCY = ['ETH', 'BTC'];
+const EXCLUDED_LIST = {
+  coin1: [ 'source1,', 'source2' ],
+  coin2: [ 'source3']
+};
 
 let removeLeadingDollarSign = (string) => {
   return string.substr(1, string.length - 1);
@@ -46,6 +50,10 @@ let findArtbirtageOpportunity = (coin) => {
       let price = removeComma(removeLeadingDollarSign($this.find('.price').text().trim()));
       let pairTwo = pair.split('/')[1];
 
+      if (EXCLUDED_LIST[coin] && EXCLUDED_LIST[coin].includes(source)) {
+        return;
+      }
+
       if (volume >= MIN_VOLUME_THRESHOLD && SWAP_CURRENCY.includes(pairTwo) && EXCHANGES.includes(source)) {
         opportunities.push({
           source,
@@ -56,7 +64,7 @@ let findArtbirtageOpportunity = (coin) => {
       }
     });
 
-    if (!opportunities.length) {
+    if (opportunities.length <= 1) {
       return;
     }
 

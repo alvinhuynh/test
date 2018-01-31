@@ -22,7 +22,7 @@ const getOptions = (coin) => {
 
 const MIN_VOLUME_THRESHOLD = 100000;
 const MIN_ARBITRAGE_THRESHOLD = 0.05;
-const EXCHANGES = [ 'Liqui', 'Huobi', 'Cryptopia','HitBTC', 'Poloniex', 'Binance', 'KuCoin'];
+const EXCHANGES = [ 'Liqui', 'Huobi', 'Cryptopia', 'HitBTC', 'Poloniex', 'Binance', 'KuCoin'];
 const SWAP_CURRENCY = ['ETH', 'BTC'];
 
 let removeLeadingDollarSign = (string) => {
@@ -55,21 +55,24 @@ let findArtbirtageOpportunity = (coin) => {
         });
       }
     });
-    opportunities.sort((a, b) => {
-      return b.price - a.price;
-    });
 
     if (!opportunities.length) {
       return;
     }
 
+    opportunities.sort((a, b) => {
+      return b.price - a.price;
+    });
+
     let highestPrice = opportunities[0];
     let lowestPrice = opportunities[opportunities.length - 1];
 
-    if (((parseFloat(highestPrice.price) / parseFloat(lowestPrice.price)) - 1) >= MIN_ARBITRAGE_THRESHOLD) {
-      console.log('arbitrage opportunity exists for: ', coin );
-      console.log(`buy from source: ${lowestPrice.source}, pair: ${lowestPrice.pair}, volume: ${lowestPrice.volume}, price: ${lowestPrice.price}`);
-      console.log(`sell from source: ${highestPrice.source}, pair: ${highestPrice.pair}, volume: ${highestPrice.volume}, price: ${highestPrice.price}`)
+    let arbitrageDecimal = (parseFloat(highestPrice.price) / parseFloat(lowestPrice.price)) - 1;
+
+    if (arbitrageDecimal >= MIN_ARBITRAGE_THRESHOLD) {
+      console.log(`Arbitrage opportunity exists for ${coin} to make a ${(arbitrageDecimal*100).toFixed(2)}% gain!`);
+      console.log(`Buy from source: ${lowestPrice.source}, pair: ${lowestPrice.pair}, volume: ${lowestPrice.volume}, price: ${lowestPrice.price}`);
+      console.log(`Sell from source: ${highestPrice.source}, pair: ${highestPrice.pair}, volume: ${highestPrice.volume}, price: ${highestPrice.price}`)
       console.log('\n');
     }
   }).catch(function (err) {

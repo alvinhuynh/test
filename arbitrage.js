@@ -1,6 +1,6 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
-var CoinMarketCap = require("node-coinmarketcap");
+var CoinMarketCap = require('node-coinmarketcap');
 var coinmarketcap = new CoinMarketCap();
 
 coinmarketcap.multi(coins => {
@@ -22,14 +22,15 @@ const getOptions = (coin) => {
 
 const MIN_VOLUME_THRESHOLD = 100000;
 const MIN_ARBITRAGE_THRESHOLD = 0.05;
-
+const EXCHANGES = [ 'Liqui', 'Huobi', 'Cryptopia','HitBTC', 'Poloniex', 'Binance', 'KuCoin'];
+const SWAP_CURRENCY = ['ETH', 'BTC'];
 
 let removeLeadingDollarSign = (string) => {
   return string.substr(1, string.length - 1);
 };
 
 let removeComma = (string) => {
-  return string.replace(/,\s?/g, "");
+  return string.replace(/,\s?/g, '');
 };
 
 let findArtbirtageOpportunity = (coin) => {
@@ -43,8 +44,9 @@ let findArtbirtageOpportunity = (coin) => {
       let pair = $(tags.get(1)).text().trim();
       let volume = removeComma(removeLeadingDollarSign($this.find('.volume').text().trim()));
       let price = removeComma(removeLeadingDollarSign($this.find('.price').text().trim()));
+      let pairTwo = pair.split('/')[1];
 
-      if (volume >= MIN_VOLUME_THRESHOLD) {
+      if (volume >= MIN_VOLUME_THRESHOLD && SWAP_CURRENCY.includes(pairTwo) && EXCHANGES.includes(source)) {
         opportunities.push({
           source,
           pair,
@@ -56,6 +58,10 @@ let findArtbirtageOpportunity = (coin) => {
     opportunities.sort((a, b) => {
       return b.price - a.price;
     });
+
+    if (!opportunities.length) {
+      return;
+    }
 
     let highestPrice = opportunities[0];
     let lowestPrice = opportunities[opportunities.length - 1];
